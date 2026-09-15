@@ -1,0 +1,106 @@
+// Prisma schema for Kingdom Keys Prayer Chapel A/G (KKPC A/G)
+// docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Daily devotional content ("Living Word")
+model Devotional {
+  id         String   @id @default(cuid())
+  date       String   @unique // ISO date string e.g. "2026-09-07"
+  title      String
+  scripture  String   // e.g. "Hebrews 10:23"
+  body       String   // main devotional text
+  confession String?  // daily confession
+  prayer     String?  // prayer of faith
+  author     String   @default("Pastor")
+  audioUrl   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// Sermons & media archive
+model Sermon {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   // e.g. "Sunday Message", "Impact Series"
+  series      String?  // e.g. "Greater Works"
+  description String
+  duration    Int      // minutes
+  speaker     String
+  scripture   String?
+  audioUrl    String?
+  serviceDate  String   // ISO date of the service
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Upcoming events & conferences
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  date        String   // ISO date
+  endDate     String?
+  description String
+  location    String
+  category    String   @default("Gathering")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Church branches / locations
+model Branch {
+  id          String   @id @default(cuid())
+  city        String
+  name        String   // e.g. "KKPC Phoenix Main"
+  address     String
+  serviceTimes String  // e.g. "Sunday • 8:00 AM / 10:30 AM"
+  phone       String?
+  mapUrl      String?
+  isMain      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Online giving records
+model Donation {
+  id        String   @id @default(cuid())
+  purpose   String   // Tithe | Offertory | First Fruits | Central Aid | Temple Project
+  currency  String   @default("USD")
+  amount    Float
+  channel   String   // Card | PayPal | Cash App | Zelle | ACH
+  name      String?
+  email     String?
+  phone     String?
+  note      String?
+  reference String   @unique // internal reference
+  status    String   @default("pending") // pending | completed | failed
+  createdAt DateTime @default(now())
+}
+
+// Prayer request submissions
+model PrayerRequest {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  request   String
+  category  String   @default("General") // General | Healing | Guidance | Thanksgiving | Salvation
+  isUrgent  Boolean  @default(false)
+  status    String   @default("open") // open | praying | resolved
+  createdAt DateTime @default(now())
+}
+
+// Keep a simple contact / newsletter subscribe list
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+}
